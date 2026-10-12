@@ -1,4 +1,4 @@
-# 🌱 스마트팜 작물 질병 진단 API 서비스 (Plant Disease Detection API)
+# 스마트팜 작물 질병 진단 API 서비스 (Plant Disease Detection API)
 
 ![Python](https://img.shields.io/badge/Python-3.9-blue) ![PyTorch](https://img.shields.io/badge/PyTorch-red) ![FastAPI](https://img.shields.io/badge/FastAPI-009688) ![Docker](https://img.shields.io/badge/Docker-2496ED) ![AWS](https://img.shields.io/badge/AWS_EC2-FF9900)
 
@@ -19,7 +19,7 @@
 2.  **Backend (FastAPI):** 클라이언트의 이미지 업로드 요청을 비동기로 처리 및 AI 추론 결과 반환
 3.  **Deployment (Docker/AWS EC2):** 환경 의존성을 없애기 위해 컨테이너화 후 클라우드 서버에 배포
 
-## 3. 핵심 문제 해결 (Troubleshooting) 🎯
+## 3. 핵심 문제 해결 (Troubleshooting) 
 
 이 프로젝트를 진행하며 다음 세 가지 기술적 문제를 해결했습니다.
 
