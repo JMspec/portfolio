@@ -1,59 +1,49 @@
-# 🚀 [프로젝트명]: [프로젝트를 설명하는 직관적인 한 줄 요약]
+# 🌱 스마트팜 작물 질병 진단 API 서비스 (Plant Disease Detection API)
 
-![Project Banner or Demo GIF](이미지_또는_GIF_링크)
+![Python](https://img.shields.io/badge/Python-3.9-blue) ![PyTorch](https://img.shields.io/badge/PyTorch-red) ![FastAPI](https://img.shields.io/badge/FastAPI-009688) ![Docker](https://img.shields.io/badge/Docker-2496ED) ![AWS](https://img.shields.io/badge/AWS_EC2-FF9900)
 
-> **프로젝트 기간:** 202X.XX ~ 202X.XX (X주)
-> **배포 주소:** [라이브 서비스 링크](https://your-service-link.com) (선택)
-> **시연 영상:** [YouTube 링크](https://youtube.com/...) (선택)
+스마트폰으로 작물의 잎 사진을 촬영하면, 실시간으로 질병 여부와 종류를 진단해 주는 경량화된 AI 딥러닝 백엔드 API 서버입니다. 
+농가의 엣지(Edge) 디바이스 환경을 고려하여 **추론 속도와 서버 리소스 최적화**에 집중했습니다.
 
 ---
 
-## 💡 1. 프로젝트 개요 (Introduction)
-[프로젝트를 기획하게 된 배경이나 해결하고자 한 문제점을 2~3줄로 간략히 서술합니다. 예: 농가에서 발생하는 작물 질병을 조기에 진단하여 피해를 줄이기 위한 AI 기반 이미지 분석 API 서비스입니다.]
+## 1. 프로젝트 개요
+*   **개발 인원:** 1인 (엔드투엔드 구축)
+*   **주요 목표:** 
+    *   PlantVillage 데이터셋(54,000+장)을 활용한 이미지 분류 모델 학습
+    *   실무 환경을 고려한 경량화 모델(MobileNetV3) 선정 및 최적화
+    *   FastAPI와 Docker를 활용한 독립적인 배포 파이프라인 구축
 
-## 🛠 2. 기술 스택 (Tech Stack)
-* **Language:** Python 3.9
-* **AI/ML:** PyTorch, OpenCV
-* **Backend:** FastAPI, Uvicorn
-* **Database:** PostgreSQL, SQLAlchemy
-* **Infrastructure:** AWS EC2, Docker, GitHub Actions
+## 2. 시스템 아키텍처
+1.  **AI Training (Local/GPU):** PyTorch로 데이터 증강 및 MobileNetV3 전이 학습 후 가중치(`.pt`) 추출
+2.  **Backend (FastAPI):** 클라이언트의 이미지 업로드 요청을 비동기로 처리 및 AI 추론 결과 반환
+3.  **Deployment (Docker/AWS EC2):** 환경 의존성을 없애기 위해 컨테이너화 후 클라우드 서버에 배포
 
-## 🏗 3. 시스템 아키텍처 (Architecture)
-[여기에 시스템 구조도 이미지를 삽입합니다. draw.io나 excalidraw를 활용해 작성한 이미지를 첨부하세요.]
-![Architecture](아키텍처_이미지_링크)
+## 3. 핵심 문제 해결 (Troubleshooting) 🎯
 
-## ✨ 4. 핵심 기능 (Key Features)
-1. **[기능 1 이름]:** [기능 설명 - 예: 농작물 잎 이미지 업로드 시 0.5초 이내에 5가지 질병 중 하나로 분류하여 결과 반환]
-2. **[기능 2 이름]:** [기능 설명 - 예: JWT 기반의 사용자 인증 및 농가별 진단 기록 히스토리 저장]
+이 프로젝트를 진행하며 다음 세 가지 기술적 문제를 해결했습니다.
 
-## 🔥 5. 핵심 트러블슈팅 및 성능 개선 (Troubleshooting)
-자세한 문제 해결 과정은 [기술 블로그 링크] 또는 하단 요약을 참고해 주세요.
+### ① 실환경 노이즈 대비 강건한 모델 학습 (Data Augmentation)
+*   **문제:** 스마트팜 현장에서 찍힌 사진은 조명이나 각도가 일정하지 않음.
+*   **해결:** 학습 시 `RandomResizedCrop`, `RandomHorizontalFlip` 등의 증강 기법을 적용하여 모델이 객체의 다양한 형태에 적응하도록 유도함. (검증 정확도 향상 기여)
 
-* **[이슈 1] 무거운 AI 모델로 인한 API 응답 지연 (3초 -> 0.4초 개선)**
-  * **문제:** PyTorch 모델(.pth)을 그대로 로드하여 추론 시, 응답 속도가 평균 3.2초 소요됨.
-  * **해결:** 모델을 ONNX 포맷으로 변환하여 경량화하고, FastAPI의 비동기(`async def`) 처리 및 멀티 프로세스 워커를 적용하여 추론 속도를 0.4초 이내로 단축.
-* **[이슈 2] 학습 데이터 불균형으로 인한 소수 클래스 정확도 저하**
-  * **문제:** 특정 질병(A병)의 데이터가 전체의 5% 미만이라 해당 질병에 대한 재현율(Recall)이 40%에 머뭄.
-  * **해결:** Focal Loss를 적용하여 소수 클래스에 대한 가중치를 부여하고, Albumentations를 이용한 데이터 증강 기법을 도입하여 해당 클래스의 재현율을 85%까지 끌어올림.
+### ② 클라우드 프리티어 메모리 초과 문제 해결 (Resource Optimization)
+*   **문제:** RAM 1GB인 AWS EC2 프티리어 환경에서 무거운 AI 서버 구동 시 메모리 부족(OOM)으로 서버 다운 발생.
+*   **해결:** 
+    *   ResNet 대비 파라미터 수가 적고 추론이 빠른 **MobileNetV3-Small**로 아키텍처 변경.
+    *   Dockerfile 작성 시 `python:3.9-slim` 베이스 이미지를 사용하고, 용량이 큰 CUDA 버전 PyTorch 대신 **CPU 전용 PyTorch**를 설치하도록 명시하여 컨테이너 이미지를 약 2GB 이상 경량화함.
 
-## 🚀 6. 실행 방법 (Getting Started)
+### ③ 추론 시 텐서 차원 불일치 에러 (Data Preprocessing)
+*   **문제:** 단일 이미지 추론 시 모델이 4차원 텐서를 요구하여 에러 발생.
+*   **해결:** PyTorch의 `unsqueeze(0)`을 활용해 단일 이미지에 임시 배치(Batch) 차원을 추가하여 안정적인 추론 파이프라인 구축.
 
-### Prerequisites
-* Python >= 3.9
-* Docker
+## 4. API 사용 명세 (API Reference)
 
-### Installation
-```bash
-# 저장소 클론
-$ git clone [https://github.com/username/repo-name.git](https://github.com/username/repo-name.git)
-$ cd repo-name
-
-# 가상환경 생성 및 패키지 설치
-$python -m venv venv$ source venv/bin/activate  # Windows: venv\Scripts\activate
-$ pip install -r requirements.txt
-
-# 환경변수 설정
-$ cp .env.example .env (이후 .env 파일에 DB 정보 등 입력)
-
-# 서버 실행
-$ uvicorn main:app --reload
+**엔드포인트:** `POST /predict`
+**요청 (Request):** Multipart form-data 형태의 이미지 파일 (`file`)
+**응답 (Response):** 
+```json
+{
+  "predicted_class": "Tomato_Bacterial_spot",
+  "confidence": 98.45
+}
